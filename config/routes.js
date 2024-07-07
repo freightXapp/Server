@@ -1,16 +1,8 @@
 const { create } = require("../services/user");
+const  TransportRequest = require("../controllers/transportRequest");
+const TestServer = require("../controllers/data.js");
 
 module.exports = (app) => {
-  app.post("/login", async (req, res) => {
-    const data = {
-      email: req.body.email,
-      password: req.body.password,
-    };
-
-    const createdData = await create(data);
-    res.json({
-      createdData,
-      message: "User Login Successfuly",
-    });
-  });
+  app.use("/", TestServer);
+  app.use("/trs", TransportRequest);
 };
