@@ -19,6 +19,7 @@
         "firebase": "^10.8.0",
         "jsonwebtoken": "^8.5.1",
         "libphonenumber-js": "^1.11.4",
-        "mongoose": "^6.7.0"
+        "mongoose": "^6.7.0",
+        "twilio": "^5.2.2"
     }
 }

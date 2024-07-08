@@ -29,28 +29,28 @@ const validateTransportRequest = [
     .isFloat({ gt: 0 })
     .withMessage("Weight must be a positive number"),
   check("dimensions").not().isEmpty().withMessage("Dimensions are required"),
-  check("pickupDateTime")
-    .not()
-    .isEmpty()
-    .custom((value) => {
-      const pickupDate = new Date(value);
-      const today = new Date();
-      if (pickupDate < today) {
-        throw new Error("Pickup Date cannot be in the past");
-      }
-      return true;
-    }),
-  check("deliveryDateTime")
-    .not()
-    .isEmpty()
-    .custom((value, { req }) => {
-      const deliveryDate = new Date(value);
-      const pickupDate = new Date(req.body.pickupDateTime);
-      if (deliveryDate < pickupDate) {
-        throw new Error("Delivery Date cannot be before Pickup Date");
-      }
-      return true;
-    }),
+  check("pickupDateTime").custom((value) => {
+    const pickupDate = new Date(value);
+    const today = new Date();
+    if (
+      pickupDate.toDateString() !== today.toDateString() &&
+      pickupDate < today
+    ) {
+      throw new Error("Pickup Date cannot be in the past");
+    }
+    return true;
+  }),
+  check("deliveryDateTime").custom((value, { req }) => {
+    const deliveryDate = new Date(value);
+    const pickupDate = new Date(req.body.pickupDateTime);
+    if (
+      deliveryDate.toDateString() !== pickupDate.toDateString() &&
+      deliveryDate <= pickupDate
+    ) {
+      throw new Error("Delivery Date must be after Pickup Date");
+    }
+    return true;
+  }),
 ];
 
 const handleValidation = (req, res, next) => {
@@ -59,7 +59,6 @@ const handleValidation = (req, res, next) => {
     // Construct a structured error response
     const errorResponse = {};
     errors.array().forEach((error) => {
-        console.log(error.param)
       errorResponse[error.param] = error.msg;
     });
     return res.json({ errors: errorResponse });

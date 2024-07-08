@@ -4,14 +4,13 @@ const {
   validateTransportRequest,
   handleValidation,
 } = require("../validation/validateTransportRequest");
-// const twilio = require("twilio");
+const twilio = require("twilio");
 
-// const accountSid = process.env.TWILIO_ACCOUNT_SID;
-// const authToken = process.env.TWILIO_AUTH_TOKEN;
-// const client = new twilio(accountSid, authToken);
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = new twilio(accountSid, authToken);
 
 // TODO pending result ??? REMOVE AFTER ??? 
-
 
 router.post(
   "/",
@@ -20,20 +19,19 @@ router.post(
   async (req, res) => {
     try {
       const { phone, countryCode } = req.body;
-      console.log(phone, countryCode);
+      console.log(countryCode, phone);
 
       // Generate verification code // TODO
-    //   const verificationCode = Math.floor(
-    //     1000 + Math.random() * 9000
-    //   ).toString();
+      const verificationCode = Math.floor(
+        1000 + Math.random() * 9000
+      ).toString();
 
-    //   // Send SMS
-    //   await client.messages.create({
-    //     body: `Your verification code is ${verificationCode}`,
-    //     from: process.env.TWILIO_PHONE_NUMBER,
-    //     to: `${countryCode}${phone}`,
-    //   });
-    const verificationCode = '123';
+      // Send SMS
+      await client.messages.create({
+        body: `Your verification code is ${verificationCode}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: `${countryCode}${phone}`,
+      });
 
       // Save the request with the verification code and status 'pending'
       const newRequest = new TransportRequest({
