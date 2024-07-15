@@ -19,20 +19,36 @@ router.post(
   async (req, res) => {
     try {
       const { phone, countryCode } = req.body;
-      console.log(countryCode, phone);
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-      // Generate verification code // TODO
-      const verificationCode = Math.floor(
-        1000 + Math.random() * 9000
-      ).toString();
+       const existingRequest = await TransportRequest.findOne({
+         phone,
+         countryCode,
+         status: {$ne: 'pending'},
+         createdAt: { $gte: sevenDaysAgo },
+       });
 
-      // Send SMS
-      await client.messages.create({
-        body: `Your verification code is ${verificationCode}`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: `${countryCode}${phone}`,
-      });
+        if (existingRequest) {
+          return res.json({
+            message: "You have already made a request in the last 7 days.",
+            error: 'User existting',
+            phone: 'Phone number exists' 
+          });
+        }
 
+      // Generate verification code // TODO remove comments before release
+      //   const verificationCode = Math.floor(
+      //     1000 + Math.random() * 9000
+      //   ).toString();
+
+      //   // Send SMS
+      //   await client.messages.create({
+      //     body: `Your verification code is ${verificationCode}`,
+      //     from: process.env.TWILIO_PHONE_NUMBER,
+      //     to: `${countryCode}${phone}`,
+      //   });
+      verificationCode = "123";
       // Save the request with the verification code and status 'pending'
       const newRequest = new TransportRequest({
         ...req.body,
@@ -54,13 +70,18 @@ router.post(
 router.post("/verify", async (req, res) => {
   try {
     const { requestId, verificationCode } = req.body;
+    console.log(requestId, verificationCode);
     const request = await TransportRequest.findById(requestId);
 
     if (request.verificationCode === verificationCode) {
       request.status = "verified";
       await request.save();
-      res.status(201).json({ message: "Phone number verified successfully." });
+      res.status(201).json({
+        message:
+          "Phone number verified successfully. Thank you for your request. We are actively working to find a reliable transport company to fulfill this requirement. We appreciate your patience and will update you as soon as possible",
+      });
     } else {
+        throw new Error;
       res.status(400).json({ message: "Invalid verification code." });
     }
   } catch (error) {

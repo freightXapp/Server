@@ -1,8 +1,7 @@
-const { create } = require("../services/user");
 const  TransportRequest = require("../controllers/transportRequest");
-const TestServer = require("../controllers/data.js");
+const Auth = require("../controllers/auth.js");
 
 module.exports = (app) => {
-  app.use("/", TestServer);
+  app.use("/auth", Auth);
   app.use("/trs", TransportRequest);
 };

@@ -15,6 +15,7 @@ const transportRequestSchema = new mongoose.Schema({
   specialInstructions: { type: String },
   status: { type: String, default: "pending" }, // 'pending' or 'verified'
   verificationCode: { type: String },
+  createdAt: { type: Date, default: Date.now }, 
 });
 
 module.exports = mongoose.model("TransportRequest", transportRequestSchema);
