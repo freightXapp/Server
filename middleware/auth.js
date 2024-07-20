@@ -1,7 +1,7 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
     console.log("REQ COOKIES =>", req.cookies);
   try {
     console.log('test')
@@ -11,8 +11,10 @@ function authenticateToken(req, res, next) {
     }
 
     const verified = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log('VERIFIED =>', verified)
-    req.user = verified;
+    const user = await User.findById(verified.userId);
+    console.log("VERIFIED =>", verified);
+    console.log("USER =>", user);
+    req.user = user;
     next();
   } catch (err) {
     res.status(403).json({message: "Invalid Token"});
