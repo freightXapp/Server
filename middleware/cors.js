@@ -1,7 +1,7 @@
 module.exports = () => (req, res, next) => {
   const corsWhitelist = [
     "http://localhost:3000",
-    "https://web-page-chi-ten.vercel.app",
+    "https://pickup22.vercel.app/",
   ];
 
   if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
