@@ -138,14 +138,14 @@ function setCookie(res, accessToken, refreshToken){
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: "Lax", // TODO  change this to 'Strict' before go live !!!
+      sameSite: "Strict", // TODO  change this to 'Strict' before go live !!!
       maxAge: 30 * 60 * 1000,
-      path: '/'
+      path: "/",
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: "Lax", // TODO  change this to 'Strict' before go live !!!
+      sameSite: "Strict", // TODO  change this to 'Strict' before go live !!!
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
