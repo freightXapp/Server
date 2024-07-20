@@ -3,10 +3,14 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const router = require("express").Router();
 const { authenticateToken } = require("../middleware/auth");
-const User = require('../models/User')
+const User = require("../models/User");
+const isProduction = process.env.NODE_ENV === "production";
+const halfHour = new Date(Date.now() + 30 * 60 * 1000); // 30 Min
+const oneWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 Days
 
 
-const {sendValidationEmail} = require('../services/mailer');
+
+const { sendValidationEmail } = require("../services/mailer");
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -31,15 +35,22 @@ router.post("/login", async (req, res) => {
   user.refreshToken = refreshToken;
   await user.save();
 
-  res.json({
-    accessToken,
-    refreshToken,
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Strict",
   });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Strict",
+  });
+  res.json({ message: "Login successful" });
 });
 
 router.post("/register", async (req, res) => {
   const { email, password } = req.body;
-  console.log('Email =>', email);
+  console.log("Email =>", email);
   console.log("Password =>", password);
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -47,14 +58,14 @@ router.post("/register", async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  console.log('HASHPASS => ', hashedPassword);
+  console.log("HASHPASS => ", hashedPassword);
   const user = new User({ email, password: hashedPassword });
   await user.save();
 
-   const validationToken = generateValidationToken(user);
+  const validationToken = generateValidationToken(user);
 
-   console.log('validationToken', validationToken)
-   await sendValidationEmail(user.email, validationToken);
+  console.log("validationToken", validationToken);
+  await sendValidationEmail(user.email, validationToken);
 
   res.status(201).send("User registered. Please validate your email.");
 });
@@ -79,7 +90,9 @@ router.post("/token", async (req, res) => {
   }
 });
 
-router.get("/dashboard", authenticateToken, (req, res) => { // JUST FOR TESTING
+router.get("/dashboard", authenticateToken, (req, res) => {
+  // JUST FOR TESTING
+  console.log("DASH BOARD");
   if (!req.user.isEmailValidated) {
     return res
       .status(403)
@@ -88,10 +101,9 @@ router.get("/dashboard", authenticateToken, (req, res) => { // JUST FOR TESTING
   res.send("Welcome to the dashboard");
 });
 
-
 router.get("/validate-email", async (req, res) => {
-  const { token } = req.query;
-  console.log('token => ',token)
+  const { token } = req.query; // TODO REVALIDATE ???
+  console.log("token => ", token);
   if (!token) {
     return res.status(400).send("Token is required");
   }
@@ -106,12 +118,34 @@ router.get("/validate-email", async (req, res) => {
     user.isEmailValidated = true;
     await user.save();
 
-    res.status(200).send("Email validated successfully");
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+    console.log("Is Production =>", isProduction);
+    setCookie(res, accessToken, refreshToken);
+    console.log("send cookie");
+    res.json({ message: "Email validated successfully" });
   } catch (error) {
     res.status(400).send("Invalid or expired token");
   }
 });
 
+function setCookie(res, accessToken, refreshToken){
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "Strict", // TODO  change this to 'Strict' before go live !!!
+      maxAge: halfHour,
+    });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "Strict", // TODO  change this to 'Strict' before go live !!!
+      maxAge: oneWeek,
+    });
+}
 
 function generateAccessToken(user) {
   return jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
