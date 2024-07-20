@@ -38,12 +38,12 @@ router.post("/login", async (req, res) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "Strict",
+    sameSite: "Lax",
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "Strict",
+    sameSite: "Lax",
   });
   res.json({ message: "Login successful" });
 });
@@ -110,7 +110,9 @@ router.get("/validate-email", async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET);
+    console.log('Decoded', decoded)
     const user = await User.findById(decoded.userId);
+    console.log(user);
     if (!user) {
       return res.status(400).send("Invalid token");
     }
