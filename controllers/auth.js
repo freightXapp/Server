@@ -137,17 +137,15 @@ router.post("/validate-email", async (req, res) => {
 function setCookie(res, accessToken, refreshToken){
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: "None", // TODO  change this to 'Strict' before go live !!!
       maxAge: 30 * 60 * 1000,
-      path: "/",
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: "None", // TODO  change this to 'Strict' before go live !!!
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
     });
 }
 
