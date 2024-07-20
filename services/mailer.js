@@ -22,10 +22,9 @@ async function sendValidationEmail(email, token) {
 
 function getMailOptions(validationUrl, email) {
   const htmlContent = getConfirmEmailTemplate(validationUrl, email);
-
   return {
     from: "zth.one2hero.com", // TODO Replace after creating no.replay@pickup2.com email
-    to: "turgay.durhanov.ismailov@gmail.com", // TODO change with 'email' variable
+    to: email, // TODO change with 'email' variable
     subject: "Confirm Your Email",
     html: htmlContent,
   };
