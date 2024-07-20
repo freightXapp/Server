@@ -1,5 +1,6 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 async function authenticateToken(req, res, next) {
     console.log("REQ COOKIES =>", req.cookies);
