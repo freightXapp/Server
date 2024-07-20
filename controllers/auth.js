@@ -101,7 +101,7 @@ router.get("/dashboard", authenticateToken, (req, res) => {
   res.send("Welcome to the dashboard");
 });
 
-router.get("/validate-email", async (req, res) => {
+router.post("/validate-email", async (req, res) => {
   const { token } = req.query; // TODO REVALIDATE ???
   console.log("token => ", token);
   if (!token) {
@@ -138,14 +138,14 @@ function setCookie(res, accessToken, refreshToken){
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: "Strict", // TODO  change this to 'Strict' before go live !!!
+      sameSite: "Lax", // TODO  change this to 'Strict' before go live !!!
       maxAge: 30 * 60 * 1000,
       path: "/",
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: "Strict", // TODO  change this to 'Strict' before go live !!!
+      sameSite: "Lax", // TODO  change this to 'Strict' before go live !!!
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
