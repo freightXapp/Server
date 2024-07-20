@@ -8,7 +8,8 @@ const clientSecret = process.env.GOOGLE_MAILER_CLIENT_SECRET; // TODO create OAa
 
 async function sendValidationEmail(email, token) {
   const transporter = await getTransporter();
-  const validationUrl = `${process.env.FRONTEND_DOMAIN}/validate-email?token=${token}`;
+//   const validationUrl = `${process.env.FRONTEND_DOMAIN}/validate-email?token=${token}`; // TODO ADD THIS BEFORE LIVE
+  const validationUrl = `https://pickup22.vercel.app/validate-email?token=${token}`;
   const mailOptions = getMailOptions(validationUrl, email);
 
   transporter.sendMail(mailOptions, (error, info) => {
