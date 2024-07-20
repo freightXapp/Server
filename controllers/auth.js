@@ -128,7 +128,7 @@ router.get("/validate-email", async (req, res) => {
     console.log("Is Production =>", isProduction);
     setCookie(res, accessToken, refreshToken);
     console.log("send cookie");
-    res.json({ message: "Email validated successfully" });
+    res.status(200).json({ message: "Email validated successfully" });
   } catch (error) {
     res.status(400).send("Invalid or expired token");
   }
